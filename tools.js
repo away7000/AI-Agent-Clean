@@ -29,13 +29,21 @@ export async function search(query) {
 // 🌐 READ
 export async function read(url) {
   try {
-    const { data } = await axios.get(url, {
+    // 🔥 pakai textise / reader proxy
+    const api = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+
+    const { data } = await axios.get(api, {
       headers: { "User-Agent": "Mozilla/5.0" }
     });
 
     const $ = cheerio.load(data);
-    return $("body").text().slice(0, 2000);
-  } catch {
+
+    // ambil teks lebih bersih
+    let text = $("article").text() || $("body").text();
+
+    return text.replace(/\s+/g, " ").slice(0, 2000);
+
+  } catch (err) {
     return "";
   }
 }
