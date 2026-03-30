@@ -24,16 +24,24 @@ export async function handleAI(userId, input) {
       const data = await read(input);
       result = smartSummary(data);
     } else if (intent === "research") {
-      const data = await search(input);
-      let summary = "";
+  const data = await search(input);
 
-      for (let item of data.slice(0, 2)) {
-        const content = await read(item.link);
-        summary += smartSummary(content) + "\n\n";
-      }
+  if (!data.length) {
+    return "⚠️ Data kosong, coba query lain";
+  }
 
-      result = `📊 Hasil riset:\n\n${summary}`;
-    } else {
+  let summary = "";
+
+  for (let item of data.slice(0, 2)) {
+    const content = await read(item.link);
+
+    if (content) {
+      summary += smartSummary(content) + "\n\n";
+    }
+  }
+
+  return summary || "⚠️ Gagal ambil konten";
+} else {
       result = mem.lastQuery
         ? `Lu sebelumnya nanya: "${mem.lastQuery}"\nSekarang: "${input}"`
         : "Tanya aja apa pun, gw bisa cari info 🌐";
